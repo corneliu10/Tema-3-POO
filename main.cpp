@@ -8,39 +8,39 @@ vector<int> totalClienti;
 
 class Ciorba {
 public:
-    Ciorba() {};
+    Ciorba() {
+        };
 
-    Ciorba(string pnume, int ppret) : pret(ppret) {
-        nume = pnume;
-    }
-    friend ostream& operator<< (ostream &out, Ciorba &c) {
-        out<<c.nume<<" "<<c.pret<<"\n";
-        return out;
-    }
+        Ciorba(string pnume, int ppret) : pret(ppret) {
+            nume = pnume;
+        }
+        friend ostream& operator<< (ostream &out, Ciorba &c) {
+            out<<c.nume<<" "<<c.pret<<"\n";
+            return out;
+        }
 
-    int getPret() {
-        return pret;
-    }
+        int getPret() {
+            return pret;
+        }
 
-protected:
-    int pret;
-    string nume;
-};
+    protected:
+        int pret;
+        string nume;
+    };
 
-class CiorbaExtra : public Ciorba {
-public:
-    CiorbaExtra() {};
+    class CiorbaExtra : public Ciorba {
+    public:
+        CiorbaExtra() {};
 
-    CiorbaExtra(bool cuSm, bool cuArd, string pnume, int ppret) : Ciorba(pnume, ppret) {
-        cuSmantana = cuSm;
-        cuArdei = cuArd;
-    }
-    bool cuSmantana;
-    bool cuArdei;
+        CiorbaExtra(bool cuSm, bool cuArd, string pnume, int ppret) : Ciorba(pnume, ppret) {
+            cuSmantana = cuSm;
+            cuArdei = cuArd;
+        }
+        bool cuSmantana;
+        bool cuArdei;
 };
 
 class FelPrincipal;
-class Comanda;
 
 class Garnitura {
 friend FelPrincipal;
@@ -52,6 +52,7 @@ public:
     Garnitura(string pnume, int pret) : pret(pret) {
         nume = pnume;
     }
+
 
     friend ostream& operator<<(ostream &out, Garnitura &g) {
         out<<g.nume<<" "<<g.pret;
@@ -88,7 +89,6 @@ protected:
     string carne;
     int pretCarne;
     string nume;
-    Garnitura *garnitura;
 public:
     FelPrincipal() {};
 
@@ -102,12 +102,8 @@ public:
         this->nume = nume;
     }
 
-    void adaugaGarnitura(Garnitura *g) {
-        this->garnitura = g;
-    }
-
     virtual int calcPretTotal() {
-        return pretCarne + garnitura->pret;
+        return pretCarne + 12;
     }
 };
 
@@ -124,7 +120,7 @@ public:
     }
 
     virtual int calcPretTotal() {
-        return pretCarne * (gramaj / 100) + garnitura->getPret();
+        return pretCarne * (gramaj / 100) + 15;
     }
 };
 
@@ -203,6 +199,7 @@ public:
     Bautura *bautura;
     Ciorba *ciorba;
     FelPrincipal *felPrincipal;
+    Garnitura *garnitura;
     Desert *desert;
     int pretTotal;
 
@@ -238,54 +235,92 @@ public:
         return nrClienti;
     }
 
+    int getPret() {
+        return comanda.pretTotal;
+    }
+
     void Meniu() {
-        cin.get();
         char s[100];
+        comanda.pretTotal = 0;
         cout<<"De baut va aduc ceva?\n";
         cin.getline(s,100);
-        if(strcmp(s,"Nu")==0)
+        if(strcmp(s,"nu")==0)
             comanda.bautura = NULL;
         else
         {
             cout<<"Vin,bere sau apa?\n";
             cin.getline(s,100);
-            if(strcmp(s,"Vin")==0) comanda.bautura = new SticlaDeVin;
-            else if(strcmp(s,"Bere")==0) comanda.bautura= new Bere;
-            else comanda.bautura= new Bautura;
+            if(strcmp(s,"vin")==0) comanda.bautura = new SticlaDeVin(13, 100, "Bourboun", "deluxe", 1998);
+            else if(strcmp(s,"bere")==0) comanda.bautura= new Bere(15, 330, "Heineken", true);
+            else comanda.bautura= new Bautura(8, 250, "Dorna");
             comanda.pretTotal += comanda.bautura->getPret();
         }
         cout<<"Doriti ciorba?\n";
         cin.getline(s,100);
-        if(strcmp(s,"Da")==0)
+        if(strcmp(s,"da")==0)
         {
-            comanda.ciorba = new Ciorba;
+            cout<<"De care?De burta,de legume sau de ciuperci?\n";
+            cin.getline(s,100);
+
+            if(strcmp(s,"de ciuperci")==0) { comanda.ciorba = new Ciorba("ciuperci",13); };
+            if(strcmp(s,"de burta")==0) {
+                    cout<<"Cu sau fara smantana?\n";
+                    cin.getline(s,100);
+
+                    if(strcmp(s,"cu")==0)
+                        comanda.ciorba = new CiorbaExtra(false, true,"burta", 14);
+                    else
+                        comanda.ciorba = new CiorbaExtra(false, false,"burta", 12);
+            }
+            if(strcmp(s,"de legume")==0) {
+                cout<<"Cu sau fara smantana?\n";
+                    cin.getline(s,100);
+
+                    if(strcmp(s,"cu")==0)
+                        comanda.ciorba = new CiorbaExtra(false, true,"legume", 14);
+                    else
+                        comanda.ciorba = new CiorbaExtra(false, false,"legume", 12);
+             }
             comanda.pretTotal += comanda.ciorba->getPret();
         }
         cout<<"Doriti fel principal?\n";
         cin.getline(s,100);
-        if(strcmp(s,"Da")==0)
+        if(strcmp(s,"da")==0)
         {
             cout<<"De pui sau de vita?\n";
             cin.getline(s,100);
-            if(strcmp(s,"De pui")==0)
-                comanda.felPrincipal = new FelPrincipal;
-            else comanda.felPrincipal = new FelPrincipalVita;
+            if(strcmp(s,"de pui")==0)
+                comanda.felPrincipal = new FelPrincipal("pui", 18,"Garno");
+            else comanda.felPrincipal = new FelPrincipalVita(22, "Biso", 4, 200);
             comanda.pretTotal += comanda.felPrincipal->getPret();
         }
+
         cout<<"Doriti garnitura?\n";
         cin.getline(s,100);
-        if(strcmp(s,"Da")==0)
+        if(strcmp(s,"da")==0)
         {
-            comanda.felPrincipal->adaugaGarnitura(new Garnitura);
-            comanda.pretTotal += comanda.felPrincipal->getPret();
+            cout<<"Cartfoi sau orez?\n";
+            cin.getline(s,100);
+            if(strcmp(s,"cartofi")==0)
+                comanda.garnitura = new Cartofi(true, "cartofi", 9);
+            else
+                comanda.garnitura = new Garnitura("orez", 9);
+            comanda.pretTotal += comanda.garnitura->getPret();
         }
         cout<<"Doriti desert?\n";
         cin.getline(s,100);
-        if(strcmp(s,"Da")==0)
+        if(strcmp(s,"da")==0)
         {
-            comanda.desert = new Desert;
+            cout<<"Krantz sau Inghetata?\n";
+            cin.getline(s,100);
+            if(strcmp(s,"krantz")==0)
+                comanda.desert = new Desert(9, "krantz");
+            else
+                comanda.desert = new Inghetata(4, "ciocolata", 3);
             comanda.pretTotal += comanda.desert->getPret();
         }
+
+        cout<<"Pret comanda: "<<comanda.pretTotal<<"\n\n";
     }
 };
 
@@ -299,7 +334,7 @@ private:
     int notaDePlata;
 public:
     Masa() {
-        cout<<"Dati nr de persoane la o masa: ";
+        cout<<"Dati nr de persoane la masa: ";
         cin>>nrLocuri;
         Client *c;
 
@@ -312,8 +347,15 @@ public:
     }
 
     void Comanda() {
+        cin.get();
         for(int i=0;i<clienti.size();i++)
+        {
+            cout<<"Comanda clientului : "<<i+1<<"\n";
             clienti[i]->Meniu();
+            notaDePlata += clienti[i]->getPret();
+        }
+
+        cout<<"\nNota masa: "<<notaDePlata<<"\n";
     }
 
     ~Masa() {
