@@ -1,10 +1,13 @@
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <pthread>
+
 using namespace std;
 
 class Client;
 vector<int> totalClienti;
+vector<Masa*> mese;
 
 class Ciorba {
 public:
@@ -328,13 +331,15 @@ int Client::nrClienti = 0;
 
 class Masa {
 private:
+    static int nrMese;
     int nrLocuri;
     int nrLocuriLibere;
     vector<Client*> clienti;
     int notaDePlata;
 public:
     Masa() {
-        cout<<"Dati nr de persoane la masa: ";
+        nrMese++;
+        cout<<"Dati nr de persoane la masa "<< nrMese<<" : ";
         cin>>nrLocuri;
         Client *c;
 
@@ -360,13 +365,31 @@ public:
 
     ~Masa() {
         clienti.clear();
+        nrMese--;
     }
 };
 
+int Masa::nrMese = 0;
+
+void *PrintHello(void *threadId) {
+    mese.push_back(new Masa);
+
+    pthread_exit(NULL);
+}
+
 void run() {
     int n = 10;
-    vector<Masa*> mese;
-    mese.push_back(new Masa);
+    pthread_t threads[5];
+
+    for(int i = 1; i <= 5; ++i) {
+        rc = pthread_create(&threads[i], NULL, addMasa, (void *)i);
+
+        if (rc) {
+            cout << "Error:unable to create thread," << rc << endl;
+            exit(-1);
+        }
+    }
+
     mese[0]->Comanda();
 }
 
